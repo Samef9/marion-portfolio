@@ -39,8 +39,8 @@
       font-family: var(--font-sans);
       font-weight: 300;
       line-height: 1.7;
-      overflow-x: hidden;
-      cursor: pointer;
+      overflow-x: clip; /* clip ne crée pas de BFC, évite de casser position:fixed sur iOS */
+      cursor: default;
     }
 
 
@@ -60,7 +60,8 @@
       height: var(--nav-h);
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 48px;
-      z-index: 1000;
+      z-index: 9000;
+      -webkit-transform: translateZ(0); transform: translateZ(0); /* force GPU layer iOS */
       background: linear-gradient(to bottom, rgba(13,13,13,.75) 0%, rgba(13,13,13,0) 100%);
       transition: background .4s, backdrop-filter .4s, border-color .4s;
       border-bottom: 1px solid transparent;
@@ -120,15 +121,17 @@
       color: var(--bg);
     }
     .nav-hamburger {
-      display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px;
-      background: transparent; border: none;
+      display: none; flex-direction: column; justify-content: center; gap: 5px;
+      cursor: pointer; padding: 6px 8px;
+      background: none; border: 0; margin: 0;
       -webkit-appearance: none; appearance: none;
       outline: none; touch-action: manipulation;
+      width: 40px; height: 40px; flex-shrink: 0;
     }
     .nav-hamburger span {
-      display: block; width: 24px; height: 1.5px; background: var(--text);
+      display: block; width: 22px; height: 1.5px; background: var(--text);
       transition: transform .3s, opacity .3s;
-      border-radius: 1px;
+      border-radius: 1px; pointer-events: none;
     }
 
     /* ─── HERO ────────────────────────────────────────────────── */
@@ -291,7 +294,9 @@
       columns: 3;
       column-gap: 16px;
     }
-    .gallery-masonry .gallery-item {
+    .gallery-masonry-2 { columns: 2; column-gap: 16px; }
+    .gallery-masonry .gallery-item,
+    .gallery-masonry-2 .gallery-item {
       break-inside: avoid;
       margin-bottom: 16px;
       position: relative;
@@ -299,15 +304,19 @@
       border-radius: var(--radius);
       cursor: pointer;
     }
-    .gallery-masonry .gallery-item img {
-      width: 100%; display: block;
+    .gallery-masonry .gallery-item img,
+    .gallery-masonry-2 .gallery-item img {
+      width: 100%; height: auto; display: block; /* proportions naturelles */
       transition: transform .7s var(--ease-out), filter .5s;
       filter: brightness(.95) saturate(.9);
     }
-    .gallery-masonry .gallery-item:hover img {
-      transform: scale(1.04);
+    .gallery-masonry .gallery-item:hover img,
+    .gallery-masonry-2 .gallery-item:hover img {
+      transform: scale(1.03);
       filter: brightness(1.02) saturate(1.05);
     }
+    .gallery-masonry .gallery-item:hover .gallery-item-overlay,
+    .gallery-masonry-2 .gallery-item:hover .gallery-item-overlay { opacity: 1; }
     .gallery-item-overlay {
       position: absolute; inset: 0;
       background: linear-gradient(to top, rgba(13,13,13,.65) 0%, transparent 50%);
@@ -398,35 +407,37 @@
     }
     .gallery-mosaic .gallery-item:hover .gallery-item-overlay { opacity: 1; }
 
-    /* ─── FEATURED PHOTO ──────────────────────────────────────── */
-    .gallery-featured {
+    /* ─── GALLERY 3 COLONNES ──────────────────────────────────── */
+    .gallery-3col,
+    .gallery-3col-land {
       display: grid;
-      grid-template-columns: 1.4fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 16px;
-      height: 560px;
     }
-    .gallery-featured .gallery-item {
+    .gallery-3col .gallery-item,
+    .gallery-3col-land .gallery-item {
       position: relative; overflow: hidden;
       border-radius: var(--radius); cursor: pointer;
-      height: 100%;
     }
-    .gallery-featured .side-stack {
-      display: flex; flex-direction: column; gap: 16px;
-      height: 100%;
-    }
-    .gallery-featured .side-stack .gallery-item {
-      flex: 1; min-height: 0;
-    }
-    .gallery-featured .gallery-item img {
-      width: 100%; height: 100%; object-fit: cover; display: block;
+    .gallery-3col .gallery-item img {
+      width: 100%; aspect-ratio: 2/3;
+      object-fit: cover; display: block;
       transition: transform .7s var(--ease-out), filter .5s;
       filter: brightness(.95) saturate(.9);
     }
-    .gallery-featured .gallery-item:hover img {
+    .gallery-3col-land .gallery-item img {
+      width: 100%; aspect-ratio: 4/3;
+      object-fit: cover; display: block;
+      transition: transform .7s var(--ease-out), filter .5s;
+      filter: brightness(.95) saturate(.9);
+    }
+    .gallery-3col .gallery-item:hover img,
+    .gallery-3col-land .gallery-item:hover img {
       transform: scale(1.05);
       filter: brightness(1.02) saturate(1.05);
     }
-    .gallery-featured .gallery-item:hover .gallery-item-overlay { opacity: 1; }
+    .gallery-3col .gallery-item:hover .gallery-item-overlay,
+    .gallery-3col-land .gallery-item:hover .gallery-item-overlay { opacity: 1; }
 
     /* ─── FINE ART GRID ────────────────────────────────────────── */
     .gallery-fine-art {
@@ -439,7 +450,7 @@
       border-radius: var(--radius);
     }
     .gallery-fine-art .gallery-item img {
-      width: 100%; aspect-ratio: 4/3;
+      width: 100%; aspect-ratio: 3/2;
       object-fit: cover; display: block;
       transition: transform .7s var(--ease-out), filter .6s;
       filter: brightness(.9) saturate(.7);
@@ -862,29 +873,31 @@
     #lightbox-close {
       position: absolute; top: 24px; right: 24px;
       width: 44px; height: 44px;
-      background: rgba(13,13,13,.55);
-      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(0,0,0,.75);
+      border: 1px solid rgba(255,255,255,.45);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      color: var(--text);
+      color: #fff;
       cursor: pointer;
       -webkit-appearance: none; appearance: none;
       transition: border-color .3s, background .3s;
+      z-index: 5010;
     }
-    #lightbox-close:hover { border-color: var(--accent); background: rgba(201,169,110,.15); }
+    #lightbox-close:hover { border-color: var(--accent); background: rgba(201,169,110,.25); }
     .lightbox-nav {
       position: absolute; top: 50%; transform: translateY(-50%);
       width: 48px; height: 48px;
-      background: rgba(13,13,13,.55);
-      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(0,0,0,.75);
+      border: 1px solid rgba(255,255,255,.45);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      color: var(--text);
+      color: #fff;
       cursor: pointer;
       -webkit-appearance: none; appearance: none;
       transition: border-color .3s, background .3s;
+      z-index: 5010;
     }
-    .lightbox-nav:hover { border-color: var(--accent); background: rgba(201,169,110,.15); }
+    .lightbox-nav:hover { border-color: var(--accent); background: rgba(201,169,110,.25); }
     #lightbox-prev { left: 24px; }
     #lightbox-next { right: 24px; }
 
@@ -906,7 +919,7 @@
     .mobile-menu {
       position: fixed; inset: 0;
       background: var(--bg);
-      z-index: 1001;
+      z-index: 9001;
       display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
       gap: 0;
       transform: translateX(100%);
@@ -970,6 +983,7 @@
     /* ─── RESPONSIVE ──────────────────────────────────────────── */
     @media (max-width: 1024px) {
       .gallery-masonry { columns: 2; }
+      .gallery-3col { grid-template-columns: 1fr 1fr; }
       .gallery-fine-art { grid-template-columns: 1fr; }
       #about { grid-template-columns: 1fr; gap: 48px; }
       .about-image-wrap { max-width: 480px; }
@@ -991,11 +1005,8 @@
       #contact { padding: 80px 24px; }
       footer { padding: 32px 24px; }
       .gallery-masonry { columns: 1; }
-      .gallery-featured { grid-template-columns: 1fr; height: auto; }
-      .gallery-featured .gallery-item { height: auto; }
-      .gallery-featured .gallery-item img { height: auto; aspect-ratio: 4/3; }
-      .gallery-featured .side-stack { flex-direction: row; height: auto; }
-      .gallery-featured .side-stack .gallery-item img { aspect-ratio: 3/2; }
+      .gallery-3col { grid-template-columns: 1fr; }
+      .gallery-3col-land { grid-template-columns: 1fr 1fr; }
       .gallery-grid-2 { grid-template-columns: 1fr; }
       .gallery-fine-art { grid-template-columns: 1fr; }
       .gallery-strip .gallery-item { flex: 0 0 260px; }
@@ -1009,8 +1020,11 @@
     @media (max-width: 480px) {
       .gallery-strip .gallery-item { flex: 0 0 220px; }
       .gallery-mosaic { grid-template-columns: 1fr; grid-auto-rows: 220px; }
+      .gallery-3col-land { grid-template-columns: 1fr; }
       footer { flex-direction: column; align-items: flex-start; }
     }
+
+    a, button, .gallery-item, .evenements-photo-main, .evenements-photo-sm { cursor: pointer; }
 
     /* ─── UTILITY ─────────────────────────────────────────────── */
     ::selection { background: rgba(201,169,110,.25); color: var(--white); }
@@ -1138,20 +1152,18 @@
     </div>
 
     <div data-gallery="nature">
-      <div class="gallery-featured reveal reveal-delay-1">
+      <div class="gallery-3col-land reveal reveal-delay-1">
         <div class="gallery-item" data-src="public/images/nature_01.jpg">
           <img src="public/images/nature_01.jpg" alt="Pivoine avec gouttes d'eau" loading="lazy" />
           <div class="gallery-item-overlay"><span class="gallery-item-tag">Macro</span></div>
         </div>
-        <div class="side-stack">
-          <div class="gallery-item" data-src="public/images/nature_02.jpg">
-            <img src="public/images/nature_02.jpg" alt="Forêt avec fougères" loading="lazy" />
-            <div class="gallery-item-overlay"><span class="gallery-item-tag">Nature</span></div>
-          </div>
-          <div class="gallery-item" data-src="public/images/nature_03.jpg">
-            <img src="public/images/nature_03.jpg" alt="Feuille avec gouttes d'eau macro" loading="lazy" />
-            <div class="gallery-item-overlay"><span class="gallery-item-tag">Macro</span></div>
-          </div>
+        <div class="gallery-item" data-src="public/images/nature_02.jpg">
+          <img src="public/images/nature_02.jpg" alt="Forêt avec fougères" loading="lazy" />
+          <div class="gallery-item-overlay"><span class="gallery-item-tag">Nature</span></div>
+        </div>
+        <div class="gallery-item" data-src="public/images/nature_03.jpg">
+          <img src="public/images/nature_03.jpg" alt="Feuille avec gouttes d'eau macro" loading="lazy" />
+          <div class="gallery-item-overlay"><span class="gallery-item-tag">Macro</span></div>
         </div>
       </div>
       <div class="gallery-item gallery-banner reveal reveal-delay-2" data-src="public/images/nature_04.jpg">
@@ -1173,20 +1185,18 @@
       <p class="section-desc">Le portrait est pour moi bien plus qu'une photo : c'est une expérience qui permet de se voir autrement, d'accepter son corps et de repartir avec un nouveau regard sur soi.</p>
     </div>
 
-    <div class="gallery-featured reveal reveal-delay-1" data-gallery="portrait">
+    <div class="gallery-3col reveal reveal-delay-1" data-gallery="portrait">
       <div class="gallery-item" data-src="public/images/portrait_01.jpg">
         <img src="public/images/portrait_01.jpg" alt="Portrait costume chinois" loading="lazy" />
         <div class="gallery-item-overlay"><span class="gallery-item-tag">Portrait</span></div>
       </div>
-      <div class="side-stack">
-        <div class="gallery-item" data-src="public/images/portrait_02.jpg">
-          <img src="public/images/portrait_02.jpg" alt="Portrait femme chemise blanche" loading="lazy" />
-          <div class="gallery-item-overlay"><span class="gallery-item-tag">Portrait</span></div>
-        </div>
-        <div class="gallery-item" data-src="public/images/portrait_03.jpg">
-          <img src="public/images/portrait_03.jpg" alt="Portrait jeune homme sweat Stüssy" loading="lazy" />
-          <div class="gallery-item-overlay"><span class="gallery-item-tag">Portrait</span></div>
-        </div>
+      <div class="gallery-item" data-src="public/images/portrait_02.jpg">
+        <img src="public/images/portrait_02.jpg" alt="Portrait femme chemise blanche" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-item-tag">Portrait</span></div>
+      </div>
+      <div class="gallery-item" data-src="public/images/portrait_03.jpg">
+        <img src="public/images/portrait_03.jpg" alt="Portrait jeune homme sweat Stüssy" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-item-tag">Portrait</span></div>
       </div>
     </div>
   </section>
@@ -1202,20 +1212,18 @@
     </div>
 
     <div data-gallery="street">
-      <div class="gallery-featured reveal reveal-delay-1">
+      <div class="gallery-3col-land reveal reveal-delay-1">
         <div class="gallery-item" data-src="public/images/street_01.jpg">
           <img src="public/images/street_01.jpg" alt="Temple chinois de nuit" loading="lazy" />
           <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
         </div>
-        <div class="side-stack">
-          <div class="gallery-item" data-src="public/images/street_02.jpg">
-            <img src="public/images/street_02.jpg" alt="Rue néons de nuit" loading="lazy" />
-            <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
-          </div>
-          <div class="gallery-item" data-src="public/images/street_03.jpg">
-            <img src="public/images/street_03.jpg" alt="Marché de fruits" loading="lazy" />
-            <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
-          </div>
+        <div class="gallery-item" data-src="public/images/street_02.jpg">
+          <img src="public/images/street_02.jpg" alt="Rue néons de nuit" loading="lazy" />
+          <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
+        </div>
+        <div class="gallery-item" data-src="public/images/street_03.jpg">
+          <img src="public/images/street_03.jpg" alt="Marché de fruits" loading="lazy" />
+          <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
         </div>
       </div>
       <div class="gallery-item gallery-banner reveal reveal-delay-2" data-src="public/images/street_04.jpg">
@@ -1237,20 +1245,18 @@
       <p class="section-desc">Le Lifestyle me permet de prendre des images naturelles qui célèbrent la beauté des moments simples du quotidien.</p>
     </div>
 
-    <div class="gallery-featured reveal reveal-delay-1" data-gallery="lifestyle">
+    <div class="gallery-3col-land reveal reveal-delay-1" data-gallery="lifestyle">
       <div class="gallery-item" data-src="public/images/lifestyle_01.jpg">
         <img src="public/images/lifestyle_01.jpg" alt="Canapé cuir avec coussins" loading="lazy" />
         <div class="gallery-item-overlay"><span class="gallery-item-tag">Lifestyle</span></div>
       </div>
-      <div class="side-stack">
-        <div class="gallery-item" data-src="public/images/lifestyle_02.jpg">
-          <img src="public/images/lifestyle_02.jpg" alt="Assiette restaurant" loading="lazy" />
-          <div class="gallery-item-overlay"><span class="gallery-item-tag">Lifestyle</span></div>
-        </div>
-        <div class="gallery-item" data-src="public/images/lifestyle_03.jpg">
-          <img src="public/images/lifestyle_03.jpg" alt="Lanternes dans salle sombre" loading="lazy" />
-          <div class="gallery-item-overlay"><span class="gallery-item-tag">Lifestyle</span></div>
-        </div>
+      <div class="gallery-item" data-src="public/images/lifestyle_02.jpg">
+        <img src="public/images/lifestyle_02.jpg" alt="Assiette restaurant" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-item-tag">Lifestyle</span></div>
+      </div>
+      <div class="gallery-item" data-src="public/images/lifestyle_03.jpg">
+        <img src="public/images/lifestyle_03.jpg" alt="Lanternes dans salle sombre" loading="lazy" />
+        <div class="gallery-item-overlay"><span class="gallery-item-tag">Lifestyle</span></div>
       </div>
     </div>
   </section>
@@ -1377,7 +1383,10 @@
         </div>
       </div>
 
-      <form class="contact-form reveal reveal-delay-2" onsubmit="handleSubmit(event)" novalidate>
+      <form class="contact-form reveal reveal-delay-2" action="https://api.web3forms.com/submit" method="POST" onsubmit="handleSubmit(event)">
+        <input type="hidden" name="access_key" value="25002211-7acd-4d9d-bf70-7ea77e5638f5" />
+        <input type="hidden" name="subject" value="Nouveau message – Portfolio Marion Verrolle" />
+        <input type="hidden" name="redirect" value="false" />
         <div class="form-row">
           <div class="form-field">
             <label for="name">Prénom &amp; Nom</label>
@@ -1389,8 +1398,8 @@
           </div>
         </div>
         <div class="form-field">
-          <label for="subject">Sujet</label>
-          <input type="text" id="subject" name="subject" placeholder="Séance portrait, collaboration..." />
+          <label for="project">Sujet</label>
+          <input type="text" id="project" name="project" placeholder="Séance portrait, collaboration..." />
         </div>
         <div class="form-field">
           <label for="message">Message</label>
@@ -1522,22 +1531,38 @@
       });
     });
 
-    // ─── CONTACT FORM ─────────────────────────────────────────────
-    function handleSubmit(e) {
+    // ─── CONTACT FORM (Web3Forms) ──────────────────────────────────
+    async function handleSubmit(e) {
       e.preventDefault();
-      const btn = e.target.querySelector('.form-submit');
+      const form = e.target;
+      const btn  = form.querySelector('.form-submit');
       btn.textContent = 'Envoi en cours…';
       btn.disabled = true;
-      setTimeout(() => {
-        btn.innerHTML = '✓ Message envoyé !';
-        btn.style.background = '#4caf50';
-        e.target.reset();
-        setTimeout(() => {
-          btn.innerHTML = 'Envoyer le message <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
-          btn.style.background = '';
+      try {
+        const res  = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: new FormData(form)
+        });
+        const data = await res.json();
+        if (data.success) {
+          btn.innerHTML = '✓ Message envoyé !';
+          btn.style.background = '#4a7c59';
+          form.reset();
+        } else {
+          btn.innerHTML = '✗ Erreur, réessayez';
+          btn.style.background = '#8b3a3a';
           btn.disabled = false;
-        }, 3000);
-      }, 1200);
+        }
+      } catch {
+        btn.innerHTML = '✗ Erreur réseau';
+        btn.style.background = '#8b3a3a';
+        btn.disabled = false;
+      }
+      setTimeout(() => {
+        btn.innerHTML = 'Envoyer le message <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 4000);
     }
 
     // ─── REDUCED MOTION ──────────────────────────────────────────
