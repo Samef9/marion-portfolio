@@ -40,37 +40,9 @@
       font-weight: 300;
       line-height: 1.7;
       overflow-x: hidden;
-      cursor: none;
+      cursor: pointer;
     }
 
-    /* ─── CUSTOM CURSOR ───────────────────────────────────────── */
-    #cursor-dot, #cursor-ring {
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      border-radius: 50%;
-      transition: opacity .3s;
-    }
-    #cursor-dot {
-      width: 6px; height: 6px;
-      background: var(--accent);
-      transform: translate(-50%,-50%);
-    }
-    #cursor-ring {
-      width: 36px; height: 36px;
-      border: 1px solid rgba(201,169,110,.5);
-      transform: translate(-50%,-50%);
-      transition: width .25s var(--ease-out), height .25s var(--ease-out), border-color .25s;
-    }
-    body.cursor-hover #cursor-ring {
-      width: 56px; height: 56px;
-      border-color: var(--accent);
-    }
-    body.cursor-img #cursor-ring {
-      width: 80px; height: 80px;
-      border-color: rgba(201,169,110,.3);
-      mix-blend-mode: difference;
-    }
 
     /* ─── NOISE OVERLAY ───────────────────────────────────────── */
     body::before {
@@ -320,7 +292,7 @@
       position: relative;
       overflow: hidden;
       border-radius: var(--radius);
-      cursor: none;
+      cursor: pointer;
     }
     .gallery-masonry .gallery-item img {
       width: 100%; display: block;
@@ -355,7 +327,7 @@
     }
     .gallery-grid-2 .gallery-item {
       position: relative; overflow: hidden;
-      border-radius: var(--radius); cursor: none;
+      border-radius: var(--radius); cursor: pointer;
     }
     .gallery-grid-2 .gallery-item img {
       width: 100%; aspect-ratio: 3/4;
@@ -382,7 +354,7 @@
       flex: 0 0 320px;
       scroll-snap-align: start;
       position: relative; overflow: hidden;
-      border-radius: var(--radius); cursor: none;
+      border-radius: var(--radius); cursor: pointer;
     }
     .gallery-strip .gallery-item img {
       width: 100%; aspect-ratio: 2/3;
@@ -405,7 +377,7 @@
     }
     .gallery-mosaic .gallery-item {
       position: relative; overflow: hidden;
-      border-radius: var(--radius); cursor: none;
+      border-radius: var(--radius); cursor: pointer;
     }
     .gallery-mosaic .gallery-item:nth-child(1),
     .gallery-mosaic .gallery-item:nth-child(4) { grid-column: span 2; }
@@ -429,7 +401,7 @@
     }
     .gallery-featured .gallery-item {
       position: relative; overflow: hidden;
-      border-radius: var(--radius); cursor: none;
+      border-radius: var(--radius); cursor: pointer;
     }
     .gallery-featured .gallery-item:first-child img {
       aspect-ratio: 3/4;
@@ -458,7 +430,7 @@
       gap: 16px;
     }
     .gallery-fine-art .gallery-item {
-      position: relative; overflow: hidden; cursor: none;
+      position: relative; overflow: hidden; cursor: pointer;
       border-radius: var(--radius);
     }
     .gallery-fine-art .gallery-item img {
@@ -478,7 +450,7 @@
       position: relative;
       overflow: hidden;
       border-radius: var(--radius);
-      cursor: none;
+      cursor: pointer;
       margin-top: 16px;
     }
     .gallery-banner img {
@@ -530,7 +502,7 @@
       grid-column: 1 / -1;
       border-radius: var(--radius);
       overflow: hidden;
-      cursor: none;
+      cursor: pointer;
     }
     .evenements-photo-main img {
       width: 100%; aspect-ratio: 16/9;
@@ -541,7 +513,7 @@
     .evenements-photo-sm {
       border-radius: var(--radius);
       overflow: hidden;
-      cursor: none;
+      cursor: pointer;
     }
     .evenements-photo-sm img {
       width: 100%; aspect-ratio: 4/3;
@@ -1008,10 +980,6 @@
   <!-- Progress bar -->
   <div id="progress-bar"></div>
 
-  <!-- Custom cursor -->
-  <div id="cursor-dot"></div>
-  <div id="cursor-ring"></div>
-
   <!-- Lightbox -->
   <div id="lightbox" role="dialog" aria-label="Image agrandie">
     <button id="lightbox-close" aria-label="Fermer">
@@ -1173,20 +1141,24 @@
       <p class="section-desc">La Street Photography permet selon moi de transformer les scènes ordinaires de la rue en histoires visuelles.</p>
     </div>
 
-    <div class="gallery-mosaic reveal reveal-delay-1" data-gallery="street">
-      <div class="gallery-item" data-src="public/images/street_01.jpg">
-        <img src="public/images/street_01.jpg" alt="Temple chinois de nuit" loading="lazy" />
-        <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
+    <div data-gallery="street">
+      <div class="gallery-featured reveal reveal-delay-1">
+        <div class="gallery-item" data-src="public/images/street_01.jpg">
+          <img src="public/images/street_01.jpg" alt="Temple chinois de nuit" loading="lazy" />
+          <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
+        </div>
+        <div class="side-stack">
+          <div class="gallery-item" data-src="public/images/street_02.jpg">
+            <img src="public/images/street_02.jpg" alt="Rue néons de nuit" loading="lazy" />
+            <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
+          </div>
+          <div class="gallery-item" data-src="public/images/street_03.jpg">
+            <img src="public/images/street_03.jpg" alt="Marché de fruits" loading="lazy" />
+            <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
+          </div>
+        </div>
       </div>
-      <div class="gallery-item" data-src="public/images/street_02.jpg">
-        <img src="public/images/street_02.jpg" alt="Rue néons de nuit" loading="lazy" />
-        <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
-      </div>
-      <div class="gallery-item" data-src="public/images/street_03.jpg">
-        <img src="public/images/street_03.jpg" alt="Marché de fruits" loading="lazy" />
-        <div class="gallery-item-overlay"><span class="gallery-item-tag">Street</span></div>
-      </div>
-      <div class="gallery-item" data-src="public/images/street_04.jpg">
+      <div class="gallery-item gallery-banner reveal reveal-delay-2" data-src="public/images/street_04.jpg">
         <img src="public/images/street_04.jpg" alt="Pagode chinoise toit doré" loading="lazy" />
         <div class="gallery-item-overlay"><span class="gallery-item-tag">Architecture</span></div>
       </div>
@@ -1387,29 +1359,6 @@
   </footer>
 
   <script>
-    // ─── CUSTOM CURSOR ────────────────────────────────────────────
-    const dot  = document.getElementById('cursor-dot');
-    const ring = document.getElementById('cursor-ring');
-    let mx = 0, my = 0, rx = 0, ry = 0;
-    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-    (function loop() {
-      rx += (mx - rx) * .12;
-      ry += (my - ry) * .12;
-      dot.style.left  = mx + 'px';
-      dot.style.top   = my + 'px';
-      ring.style.left = rx + 'px';
-      ring.style.top  = ry + 'px';
-      requestAnimationFrame(loop);
-    })();
-
-    document.querySelectorAll('a, button, .gallery-item, .nav-hamburger').forEach(el => {
-      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-    });
-    document.querySelectorAll('.gallery-item img').forEach(el => {
-      el.addEventListener('mouseenter', () => { document.body.classList.remove('cursor-hover'); document.body.classList.add('cursor-img'); });
-      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-img'));
-    });
 
     // ─── SCROLL PROGRESS BAR ─────────────────────────────────────
     const progressBar = document.getElementById('progress-bar');
